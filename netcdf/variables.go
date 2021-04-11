@@ -89,6 +89,25 @@ func (v Var) NAttrs() (n int, err error) {
 	return
 }
 
+func (v Var) Attrs() (attrs []Attr, err error) {
+	nattrs, err := v.NAttrs()
+	if err != nil {
+		return attrs, err
+	}
+
+	attrs = make([]Attr, nattrs)
+
+	for i := 0; i < nattrs; i++ {
+		attr, err := v.AttrN(i)
+		if err != nil {
+			return attrs, err
+		}
+		attrs[i] = attr
+	}
+
+	return attrs, nil
+}
+
 // Name returns the name of the variable.
 func (v Var) Name() (name string, err error) {
 	buf := C.CString(string(make([]byte, C.NC_MAX_NAME+1)))

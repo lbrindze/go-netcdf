@@ -73,6 +73,29 @@ func (ds Dataset) NVars() (n int, err error) {
 	return
 }
 
+// Vars returns an array of netcdf.Var, used for convenience
+func (ds Dataset) Vars() (vs []Var, err error) {
+	nvars, err := ds.NVars()
+	if err != nil {
+		return vs, err
+	}
+
+	varids := make([]C.int, nvars)
+	_nvars := C.int(nvars)
+	err = newError(C.nc_inq_varids(C.int(ds), &_nvars, &varids[0]))
+	if err != nil {
+		return vs, err
+	}
+
+	vars := make([]Var, _nvars)
+
+	for i, vid := range varids {
+		vars[i] = ds.VarN(int(vid))
+	}
+
+	return vars, nil
+}
+
 // NAttrs returns the number of global attributes defined for dataset f.
 func (ds Dataset) NAttrs() (n int, err error) {
 	var cn C.int
